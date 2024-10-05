@@ -18,7 +18,6 @@ if (($handle = fopen(__DIR__ . '/var/storage/users.csv', "r")) !== false) {
 }
 
 $user = new User($data[1][0], $data[1][1], $data[1][2]);
-$bot = new Railway($client, $user);
 
 if ($argc < 4) {
     echo "Use: php app.php <station_from_id> <station_to_id> <date>\n";
@@ -29,11 +28,10 @@ $station_from_id = $argv[1];
 $station_to_id = $argv[2];
 $date = new \DateTime($argv[3]);
 
-$result = $bot->getTrips($date, $station_from_id, $station_to_id);
-foreach ($result['direct'] as $trip) {
-    foreach ($trip['train']['wagon_classes'] as $wagon) {
-        if ($wagon['free_seats'] > 0) {
-            echo sprintf("Train %s has %d free seats in %s class\n", $trip['train']['number'], $wagon['free_seats'], $wagon['id']);
-        }
-    }
+$bot = new Railway($client, $user);
+
+$seats = $bot->getAvailableSeats($date, $station_from_id, $station_to_id);
+
+foreach ($seats as $seat) {
+    echo sprintf("Train %s has %d free seats in %s class\n", $seat['train'], $seat['seats'], $seat['class']);
 }
