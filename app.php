@@ -4,8 +4,13 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use App\Railway;
 use App\User;
+use App\TgHttpClient;
 
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\Dotenv\Dotenv;
+
+$dotenv = new Dotenv();
+$dotenv->load(__DIR__.'/.env');
 
 $client = HttpClient::create();
 
@@ -18,6 +23,16 @@ if (($handle = fopen(__DIR__ . '/var/storage/users.csv', "r")) !== false) {
 }
 
 $user = new User($data[1][0], $data[1][1], $data[1][2]);
+
+$subscribers = [];
+if (($handle = fopen(__DIR__ . '/var/storage/bot.csv', "r")) !== false) {
+    while (($row = fgetcsv($handle)) !== false) {
+        if ($row[1] === '/start') {
+            $subscribers[] = $row;
+        }
+    }
+    fclose($handle);
+}
 
 if ($argc < 4) {
     echo "Use: php app.php <station_from_id> <station_to_id> <date>\n";
@@ -34,4 +49,8 @@ $seats = $bot->getAvailableSeats($date, $station_from_id, $station_to_id);
 
 foreach ($seats as $seat) {
     echo sprintf("Train %s has %d free seats in %s class\n", $seat['train'], $seat['seats'], $seat['class']);
+    foreach ($subscribers as $subscriber) {
+        $tg = new TgHttpClient($client, $_ENV['TG_TOKEN']);
+        $tg->sendMessage($subscriber[0], sprintf("Train %s has %d free seats in %s class", $seat['train'], $seat['seats'], $seat['class']));
+    }
 }
