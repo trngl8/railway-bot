@@ -54,6 +54,14 @@ class Railway
         return $seats;
     }
 
+    public function searchStations(string $query): array
+    {
+        $endpoint = '/api/stations';
+        $uri = sprintf('%s%s?search=%s', $this->baseUrl, $endpoint, urldecode($query));
+        $response = $this->client->request('GET', $uri);
+        return $response->toArray();
+    }
+
     public function getVersion(): string
     {
         return '1.0.0';
