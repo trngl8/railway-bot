@@ -35,17 +35,19 @@ if (($handle = fopen(__DIR__ . '/var/storage/bot.csv', "r")) !== false) {
 }
 
 if ($argc < 4) {
-    echo "Use: php app.php <station_from_id> <station_to_id> <date>\n";
+    echo "Use: php app.php <station_from> <station_to> <date>\n";
     exit(1);
 }
 
-$station_from_id = $argv[1];
-$station_to_id = $argv[2];
+$from = $argv[1];
+$to = $argv[2];
 $date = new \DateTime($argv[3]);
 
 $bot = new Railway($client, $user);
+$stationFrom = $bot->searchStations($from);
+$stationTo = $bot->searchStations($to);
 
-$seats = $bot->getAvailableSeats($date, $station_from_id, $station_to_id);
+$seats = $bot->getAvailableSeats($date, $stationFrom[0]['id'], $stationTo[0]['id']);
 
 foreach ($seats as $seat) {
     echo sprintf("Train %s has %d free seats in %s class\n", $seat['train'], $seat['seats'], $seat['class']);
