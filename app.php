@@ -49,10 +49,12 @@ $stationTo = $bot->searchStations($to);
 
 $seats = $bot->getAvailableSeats($date, $stationFrom[0]['id'], $stationTo[0]['id']);
 
+$result = '';
 foreach ($seats as $seat) {
-    echo sprintf("Train %s has %d free seats in %s class\n", $seat['train'], $seat['seats'], $seat['class']);
-    foreach ($subscribers as $subscriber) {
-        $tg = new TgHttpClient($client, $_ENV['TG_TOKEN']);
-        $tg->sendMessage($subscriber[0], sprintf("Train %s has %d free seats in %s class", $seat['train'], $seat['seats'], $seat['class']));
-    }
+    $result .= sprintf("Train %s has %d free seats in %s class\n", $seat['train'], $seat['seats'], $seat['class']);
+}
+
+$tg = new TgHttpClient($client, $_ENV['TG_TOKEN']);
+foreach ($subscribers as $subscriber) {
+    $tg->sendMessage($subscriber[0], $result);
 }
