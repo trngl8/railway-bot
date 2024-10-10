@@ -62,6 +62,35 @@ class Railway
         return $response->toArray();
     }
 
+    public function sendSms(string $phone): array
+    {
+        $endpoint = '/api/auth/send-sms';
+        $uri = sprintf('%s%s', $this->baseUrl, $endpoint);
+        $response = $this->client->request('POST', $uri, [
+            'json' => [
+                'phone' => $phone
+            ]
+        ]);
+        return $response->toArray();
+    }
+
+    public function login(string $phone, string $code): array
+    {
+        $endpoint = '/api/v2/auth/login';
+        $uri = sprintf('%s%s', $this->baseUrl, $endpoint);
+        $response = $this->client->request('POST', $uri, [
+            'json' => [
+                'phone' => $phone,
+                'code' => $code,
+                'device' => [
+                    'name' => 'iOS 8', //TODO: get from user agent
+                    'fcm_token' => null
+                ]
+            ]
+        ]);
+        return $response->toArray();
+    }
+
     public function getVersion(): string
     {
         return '1.0.0';
