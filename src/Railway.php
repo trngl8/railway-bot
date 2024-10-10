@@ -76,7 +76,7 @@ class Railway
 
     public function login(string $phone, string $code): array
     {
-        $endpoint = '/api/auth/login';
+        $endpoint = '/api/v2/auth/login';
         $uri = sprintf('%s%s', $this->baseUrl, $endpoint);
         $response = $this->client->request('POST', $uri, [
             'json' => [
