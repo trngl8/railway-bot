@@ -14,15 +14,19 @@ $dotenv->load(__DIR__.'/.env');
 
 $client = HttpClient::create();
 
-$data = [];
-if (($handle = fopen(__DIR__ . '/var/storage/users.csv', "r")) !== false) {
-    while (($row = fgetcsv($handle)) !== false) {
-        $data[] = $row;
-    }
-    fclose($handle);
-}
+$db = new \SQLite3(__DIR__ . '/var/data/local.db', SQLITE3_OPEN_READONLY);
+$db->enableExceptions(true);
 
-$user = new User($data[1][0], $data[1][1], $data[1][2]);
+$statement = $db->prepare('SELECT * FROM users WHERE id = :id');
+$statement->bindValue(':id', 1, SQLITE3_INTEGER);
+
+$messages = $statement->execute();
+
+$list = [];
+$item = $messages->fetchArray(SQLITE3_ASSOC);
+$db->close();
+
+$user = new User($item['phone'], $item['profile_id'], $item['key']);
 
 $subscribers = [];
 if (($handle = fopen(__DIR__ . '/var/storage/bot.csv', "r")) !== false) {

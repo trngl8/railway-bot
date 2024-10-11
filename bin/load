@@ -1,0 +1,33 @@
+#!/usr/bin/env php
+<?php
+
+$input = 'n';
+$input = strtolower(readline("Fill your database with fixtures? (y/N): "));
+if ($input === 'n') {
+    echo "OK. \n";
+    exit;
+}
+
+$db = new \SQLite3(__DIR__ . '/../var/data/local.db', SQLITE3_OPEN_READWRITE);
+$db->enableExceptions(true);
+
+$data = [];
+if (($handle = fopen(__DIR__ . '/../var/fixtures/users.csv', "r")) !== false) {
+    while (($row = fgetcsv($handle)) !== false) {
+        $data[] = $row;
+    }
+    fclose($handle);
+}
+
+$i = 0;
+$headers = [];
+foreach ($data as $id => $row) {
+    if ($id === 0) {
+        $headers = $row;
+        continue;
+    }
+    $db->query('INSERT INTO users('.implode(',', $headers).') VALUES("' . $row[0] . '", "' . $row[1] . '", "' . $row[2] . '")');
+    $i++;
+}
+
+echo sprintf("Inserted %d users\n", $i);
