@@ -30,4 +30,6 @@ foreach ($data as $id => $row) {
     $i++;
 }
 
+$db->close();
+
 echo sprintf("Inserted %d users\n", $i);
