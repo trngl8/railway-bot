@@ -46,6 +46,11 @@ $stationTo = $bot->searchStations($to);
 
 $seats = $bot->getAvailableSeats($date, $stationFrom[0]['id'], $stationTo[0]['id']);
 
+if (empty($seats)) {
+    echo "No available seats\n";
+    exit(1);
+}
+
 $result = '';
 foreach ($seats as $seat) {
     $result .= sprintf("Train %s has %d free seats in %s class\n", $seat['train'], $seat['seats'], $seat['class']);
