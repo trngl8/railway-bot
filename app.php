@@ -9,35 +9,32 @@ use App\TgHttpClient;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\Dotenv\Dotenv;
 
+if ($argc < 4) {
+    echo "Use: php app.php <station_from> <station_to> <date>\n";
+    exit(1);
+}
+
 $dotenv = new Dotenv();
 $dotenv->load(__DIR__.'/.env');
 
 $client = HttpClient::create();
 
-$data = [];
-if (($handle = fopen(__DIR__ . '/var/storage/users.csv', "r")) !== false) {
-    while (($row = fgetcsv($handle)) !== false) {
-        $data[] = $row;
-    }
-    fclose($handle);
-}
+$db = new \SQLite3(__DIR__ . '/var/data/local.db', SQLITE3_OPEN_READONLY);
+$db->enableExceptions(true);
 
-$user = new User($data[1][0], $data[1][1], $data[1][2]);
+$statement = $db->prepare('SELECT * FROM users WHERE id = :id');
+$statement->bindValue(':id', 1, SQLITE3_INTEGER);
+$users = $statement->execute();
 
-$subscribers = [];
-if (($handle = fopen(__DIR__ . '/var/storage/bot.csv', "r")) !== false) {
-    while (($row = fgetcsv($handle)) !== false) {
-        if ($row[1] === '/start') {
-            $subscribers[] = $row;
-        }
-    }
-    fclose($handle);
-}
+$one = $users->fetchArray(SQLITE3_ASSOC);
 
-if ($argc < 4) {
-    echo "Use: php app.php <station_from> <station_to> <date>\n";
-    exit(1);
-}
+$user = new User($one['phone'], $one['profile_id'], $one['key']);
+
+$statement = $db->prepare('SELECT chat_id FROM messages WHERE user_id = :id LIMIT 1');
+$statement->bindValue(':id', 1, SQLITE3_INTEGER);
+$messages = $statement->execute();
+
+$subscriber = $messages->fetchArray(SQLITE3_ASSOC);
 
 $from = $argv[1];
 $to = $argv[2];
@@ -55,6 +52,4 @@ foreach ($seats as $seat) {
 }
 
 $tg = new TgHttpClient($client, $_ENV['TG_TOKEN']);
-foreach ($subscribers as $subscriber) {
-    $tg->sendMessage($subscriber[0], $result);
-}
+$tg->sendMessage($subscriber['chat_id'], $result);
