@@ -9,6 +9,7 @@
         "ext-iconv": "*",
         "ext-readline": "*",
         "ext-sqlite3": "*",
+        "ext-curl": "*",
         "symfony/http-client": "^7.1",
         "symfony/http-foundation": "^7.1",
         "symfony/dotenv": "^7.1"

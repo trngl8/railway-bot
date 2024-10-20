@@ -14,19 +14,21 @@ $response = new JsonResponse([
     'message' => 'Not found',
 ], 404);
 
+print_r($uri);
+
 if ($uri === '/bot' && $request->isMethod('POST')) {
     $data = $request->toArray();
     $text = $data['message']['text'];
     $chatId = $data['message']['from']['id'];
-    if ($text === '/start') {
-        $db = new \SQLite3(__DIR__ . '/../var/data/local.db', SQLITE3_OPEN_READWRITE);
-        $db->enableExceptions(true);
-        $db->query('INSERT INTO messages("chat_id", "user_id", "body") VALUES ("'.$chatId.'", "1", "'.$text.'")');
-        $db->close();
-        $response = new JsonResponse([
-            'status' => 'ok',
-        ]);
-    }
+
+    $db = new \SQLite3(__DIR__ . '/../var/data/local.db', SQLITE3_OPEN_READWRITE);
+    $db->enableExceptions(true);
+    $db->query('INSERT INTO messages("chat_id", "user_id", "body") VALUES ("'.$chatId.'", "1", "'.$text.'")');
+    $db->close();
+
+    $response = new JsonResponse([
+        'status' => 'ok',
+    ]);
 }
 
 $response->send();
