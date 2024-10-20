@@ -3,6 +3,7 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use App\Console\{Webhook, Commands};
 use App\TgHttpClient;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\HttpClient\HttpClient;
@@ -19,34 +20,18 @@ $command = $argv[1];
 $options = array_slice($argv, 2);
 
 $client = HttpClient::create();
-
 $tgBot = new TgHttpClient($client, $_ENV['TG_TOKEN']);
 
-if ($command !== 'webhook') {
-    echo "Command not found \n";
-    exit(1);
+switch ($command) {
+    case 'webhook':
+        $command= new Webhook($tgBot, $options);
+        break;
+    case 'commands':
+        $command= new Commands($tgBot, $options);
+        break;
+    default:
+        echo "Command not found \n";
+        exit(1);
 }
 
-if (!isset($options[0])) {
-    $response = $tgBot->getWebhookInfo();
-}
-
-if (isset($options[0])) {
-    switch ($options[0]) {
-        case 'set':
-            if (!isset($options[1])) {
-                echo "Option URL not found \n";
-                exit(1);
-            }
-            $response = $tgBot->setWebhook($options[1]);
-            break;
-        case 'delete':
-            $response = $tgBot->deleteWebhook();
-            break;
-        default:
-            echo "Option not found \n";
-            exit(1);
-    }
-}
-
-print_r($response->toArray());
+$command->execute();
