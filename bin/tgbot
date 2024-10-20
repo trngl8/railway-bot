@@ -1,0 +1,52 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use App\TgHttpClient;
+use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\HttpClient\HttpClient;
+
+if ($argc < 2) {
+    echo "Use: php bin/tgbot <command> <option1> <option2> ... \n";
+    exit(1);
+}
+
+$dotenv = new Dotenv();
+$dotenv->load(__DIR__.'/../.env');
+
+$command = $argv[1];
+$options = array_slice($argv, 2);
+
+$client = HttpClient::create();
+
+$tgBot = new TgHttpClient($client, $_ENV['TG_TOKEN']);
+
+if ($command !== 'webhook') {
+    echo "Command not found \n";
+    exit(1);
+}
+
+if (!isset($options[0])) {
+    $response = $tgBot->getWebhookInfo();
+}
+
+if (isset($options[0])) {
+    switch ($options[0]) {
+        case 'set':
+            if (!isset($options[1])) {
+                echo "Option URL not found \n";
+                exit(1);
+            }
+            $response = $tgBot->setWebhook($options[1]);
+            break;
+        case 'delete':
+            $response = $tgBot->deleteWebhook();
+            break;
+        default:
+            echo "Option not found \n";
+            exit(1);
+    }
+}
+
+print_r($response->toArray());

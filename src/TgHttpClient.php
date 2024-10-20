@@ -4,6 +4,7 @@ namespace App;
 
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class TgHttpClient
 {
@@ -19,7 +20,7 @@ class TgHttpClient
         $this->token = $telegramBotToken;
     }
 
-    public function sendMessage(int $chatId, string $text)
+    public function sendMessage(int $chatId, string $text): ResponseInterface
     {
         $url = sprintf(self::BASE_URI_PATTERN, $this->token, 'sendMessage');
 
@@ -29,6 +30,62 @@ class TgHttpClient
                 'text' => $text
             ],
             'extra' => ['trace_content' => true]
+        ]);
+
+        if(Response::HTTP_OK !== $response->getStatusCode()) {
+            throw new \Exception(sprintf('Bad code %d. on %s', $response->getStatusCode(), $url));
+        }
+
+        return $response;
+    }
+
+    public function getMe(): ResponseInterface
+    {
+        $url = sprintf(self::BASE_URI_PATTERN, $this->token, 'getMe');
+
+        $response = $this->client->request('GET', $url);
+
+        if(Response::HTTP_OK !== $response->getStatusCode()) {
+            throw new \Exception(sprintf('Bad code %d. on %s', $response->getStatusCode(), $url));
+        }
+
+        return $response;
+    }
+
+    public function getWebhookInfo(): ResponseInterface
+    {
+        $url = sprintf(self::BASE_URI_PATTERN, $this->token, 'getWebhookInfo');
+
+        $response = $this->client->request('GET', $url);
+
+        if(Response::HTTP_OK !== $response->getStatusCode()) {
+            throw new \Exception(sprintf('Bad code %d. on %s', $response->getStatusCode(), $url));
+        }
+
+        return $response;
+    }
+
+    public function deleteWebhook(): ResponseInterface
+    {
+        $url = sprintf(self::BASE_URI_PATTERN, $this->token, 'deleteWebhook');
+
+        $response = $this->client->request('POST', $url);
+
+        if(Response::HTTP_OK !== $response->getStatusCode()) {
+            throw new \Exception(sprintf('Bad code %d. on %s', $response->getStatusCode(), $url));
+        }
+
+        return $response;
+    }
+
+    public function setWebhook(string $webhookUrl): ResponseInterface
+    {
+        $url = sprintf(self::BASE_URI_PATTERN, $this->token, 'setWebhook');
+
+        $response = $this->client->request('POST', $url, [
+            'body' => [
+                'url' => $webhookUrl
+            ]
         ]);
 
         if(Response::HTTP_OK !== $response->getStatusCode()) {
