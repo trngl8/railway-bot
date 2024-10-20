@@ -94,4 +94,34 @@ class TgHttpClient
 
         return $response;
     }
+
+    public function setCommands(array $commands): ResponseInterface
+    {
+        $url = sprintf(self::BASE_URI_PATTERN, $this->token, 'setMyCommands');
+
+        $response = $this->client->request('POST', $url, [
+            'body' => [
+                'commands' => json_encode($commands)
+            ]
+        ]);
+
+        if(Response::HTTP_OK !== $response->getStatusCode()) {
+            throw new \Exception(sprintf('Bad code %d. on %s', $response->getStatusCode(), $url));
+        }
+
+        return $response;
+    }
+
+    public function deleteCommands(): ResponseInterface
+    {
+        $url = sprintf(self::BASE_URI_PATTERN, $this->token, 'deleteMyCommands');
+
+        $response = $this->client->request('POST', $url);
+
+        if(Response::HTTP_OK !== $response->getStatusCode()) {
+            throw new \Exception(sprintf('Bad code %d. on %s', $response->getStatusCode(), $url));
+        }
+
+        return $response;
+    }
 }
