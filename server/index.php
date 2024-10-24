@@ -39,7 +39,7 @@ if ($uri === '/bot' && $request->isMethod('POST')) {
 
     $db = new \SQLite3(__DIR__ . '/../var/data/local.db', SQLITE3_OPEN_READWRITE);
     $db->enableExceptions(true);
-    $statement = $db->prepare('SELECT step FROM messages WHERE chat_id = :chat_id ORDER BY id DESC LIMIT 1');
+    $statement = $db->prepare('SELECT step FROM app_messages WHERE chat_id = :chat_id ORDER BY id DESC LIMIT 1');
     $statement->bindValue(':chat_id', $chatId, SQLITE3_INTEGER);
     $res = $statement->execute();
 
@@ -69,7 +69,7 @@ if ($uri === '/bot' && $request->isMethod('POST')) {
             break;
     }
 
-    $db->query('INSERT INTO messages("chat_id", "user_id", "body", "step") VALUES ("'.$chatId.'", "1", "'.$text.'", "'.$currentStep.'")');
+    $db->query('INSERT INTO app_messages("chat_id", "user_id", "body", "step") VALUES ("'.$chatId.'", "1", "'.$text.'", "'.$currentStep.'")');
     $db->close();
 
     $response = new JsonResponse([

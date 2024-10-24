@@ -22,7 +22,7 @@ $client = HttpClient::create();
 $db = new \SQLite3(__DIR__ . '/var/data/local.db', SQLITE3_OPEN_READONLY);
 $db->enableExceptions(true);
 
-$statement = $db->prepare('SELECT * FROM users WHERE id = :id');
+$statement = $db->prepare('SELECT * FROM app_users WHERE id = :id');
 $statement->bindValue(':id', 1, SQLITE3_INTEGER);
 $users = $statement->execute();
 
@@ -30,7 +30,7 @@ $one = $users->fetchArray(SQLITE3_ASSOC);
 
 $user = new User($one['phone'], $one['profile_id'], $one['key']);
 
-$statement = $db->prepare('SELECT chat_id FROM messages WHERE user_id = :id LIMIT 1');
+$statement = $db->prepare('SELECT chat_id FROM app_messages WHERE user_id = :id LIMIT 1');
 $statement->bindValue(':id', 1, SQLITE3_INTEGER);
 $messages = $statement->execute();
 
