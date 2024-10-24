@@ -26,7 +26,7 @@ foreach ($data as $id => $row) {
         $headers = $row;
         continue;
     }
-    $db->query('INSERT INTO users('.implode(',', $headers).') VALUES("' . $row[0] . '", "' . $row[1] . '", "' . $row[2] . '")');
+    $db->query('INSERT INTO app_users('.implode(',', $headers).') VALUES("' . $row[0] . '", "' . $row[1] . '", "' . $row[2] . '")');
     $i++;
 }
 
