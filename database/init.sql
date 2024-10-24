@@ -26,7 +26,7 @@ DROP TABLE IF EXISTS app_stations;
 CREATE TABLE app_stations (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    code INTEGER NOT NULL,
+    code INTEGER NOT NULL
 );
 
 DROP TABLE IF EXISTS app_subscriptions;
